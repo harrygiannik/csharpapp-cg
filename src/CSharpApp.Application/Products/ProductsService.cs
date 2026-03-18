@@ -1,3 +1,5 @@
+using System.Net.Http.Json;
+
 namespace CSharpApp.Application.Products;
 
 public class ProductsService : IProductsService
@@ -21,5 +23,16 @@ public class ProductsService : IProductsService
         var products = JsonSerializer.Deserialize<List<Product>>(content) ?? new List<Product>();
 
         return products.AsReadOnly();
+    }
+
+    public async Task<Product?> GetProductByID(int id)
+    {
+        var response = await _httpClient.GetAsync($"{_restApiSettings.Products}/{id}");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            return null;
+        }
+        return await response.Content.ReadFromJsonAsync<Product>();
     }
 }
