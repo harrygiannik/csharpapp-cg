@@ -23,7 +23,17 @@ if (app.Environment.IsDevelopment())
 
 var versionedEndpointRouteBuilder = app.NewVersionedApi();
 
-versionedEndpointRouteBuilder.MapGet("api/v{version:apiVersion}/products",
+var basePath = "api/v{version:apiVersion}";
+
+var productPath = $"{basePath}/products";
+
+var basePathGroup = versionedEndpointRouteBuilder
+    .MapGroup(basePath);
+
+var productsGroup = versionedEndpointRouteBuilder
+    .MapGroup(productPath);
+
+productsGroup.MapGet("",
     async (IProductsService productsService) =>
     {
         var products = await productsService.GetProducts();
@@ -32,13 +42,27 @@ versionedEndpointRouteBuilder.MapGet("api/v{version:apiVersion}/products",
     .WithName("GetProducts")
     .HasApiVersion(1.0);
 
-versionedEndpointRouteBuilder.MapGet("api/v{version:apiVersion}/products/{id:int}",
+productsGroup.MapGet("{id:int}",
     async (int id, IProductsService productsService) =>
     {
         var product = await productsService.GetProductByID(id);
         return product is null ? Results.NotFound() : Results.Ok(product);
     })
     .WithName("GetProductByID")
+    .HasApiVersion(1.0);
+
+productsGroup.MapPost("",
+    async (CreateProductRequest request, IProductsService productsService) =>
+    {
+        var createdProduct = await productsService.CreateNewProduct(request);
+        return createdProduct is null
+            ? Results.Problem()
+            : Results.CreatedAtRoute(
+            "GetProductByID",
+            new { id = createdProduct.Id },
+            createdProduct);
+    }
+    ).WithName("CreateNewProduct")
     .HasApiVersion(1.0);
 
 app.Run();

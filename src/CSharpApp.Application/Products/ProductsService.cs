@@ -35,4 +35,27 @@ public class ProductsService : IProductsService
         }
         return await response.Content.ReadFromJsonAsync<Product>();
     }
+
+    public async Task<Product?> CreateNewProduct(CreateProductRequest request)
+    {
+        var response = await _httpClient.PostAsJsonAsync(_restApiSettings.Products, request);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            _logger.LogWarning("CreateNewProduct failed ({StatusCode}). Response: {ResponseBody}", response.StatusCode, body);
+            return null;
+        }
+
+        try
+        {
+            return await response.Content.ReadFromJsonAsync<Product>();
+        }
+        catch (Exception ex)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            _logger.LogWarning(ex, "Failed to deserialize CreateNewProduct response. Response: {ResponseBody}", body);
+            return null;
+        }
+    }
 }
