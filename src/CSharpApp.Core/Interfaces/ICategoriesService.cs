@@ -5,5 +5,6 @@ namespace CSharpApp.Core.Interfaces
     {
         Task<IReadOnlyCollection<Category>> GetCategories();
         Task<Category?> GetCategoryByID(int id);
+        Task<Category?> CreateNewCategory(CreateCategoryRequest request);
     }
 }

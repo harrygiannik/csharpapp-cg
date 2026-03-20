@@ -88,4 +88,18 @@ categoriesGroup.MapGet("{id:int}",
     .WithName("GetCategoryByID")
     .HasApiVersion(1.0);
 
+categoriesGroup.MapPost("",
+    async (CreateCategoryRequest request, ICategoriesService categoriesService) =>
+    {
+        var createdCategory = await categoriesService.CreateNewCategory(request);
+        return createdCategory is null
+            ? Results.Problem()
+            : Results.CreatedAtRoute(
+            "GetCategoryByID",
+            new { id = createdCategory.Id },
+            createdCategory);
+    }
+    ).WithName("CreateNewCategory")
+    .HasApiVersion(1.0);
+
 app.Run();

@@ -36,5 +36,28 @@ namespace CSharpApp.Application.Categories
             }
             return await response.Content.ReadFromJsonAsync<Category>();
         }
+
+        public async Task<Category?> CreateNewCategory(CreateCategoryRequest request)
+        {
+            var response = await _httpClient.PostAsJsonAsync(_restApiSettings.Categories, request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("CreateNewCategory failed ({StatusCode}). Response: {ResponseBody}", response.StatusCode, body);
+                return null;
+            }
+
+            try
+            {
+                return await response.Content.ReadFromJsonAsync<Category>();
+            }
+            catch (Exception ex)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning(ex, "Failed to deserialize CreateNewCategory response. Response: {ResponseBody}", body);
+                return null;
+            }
+        }
     }
 }
