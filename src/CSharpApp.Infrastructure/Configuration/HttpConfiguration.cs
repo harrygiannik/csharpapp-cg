@@ -25,6 +25,17 @@ public static class HttpConfiguration
             .SetHandlerLifetime(handlerLifetime)
             .AddPolicyHandler(GetRetryPolicy(clientSettings));
 
+        services
+            .AddHttpClient<ICategoriesService, CategoriesService>(client =>
+            {
+                if (!string.IsNullOrWhiteSpace(apiSettings.BaseUrl))
+                {
+                    client.BaseAddress = new Uri(apiSettings.BaseUrl);
+                }
+            })
+            .SetHandlerLifetime(handlerLifetime)
+            .AddPolicyHandler(GetRetryPolicy(clientSettings));
+
         return services;
     }
 

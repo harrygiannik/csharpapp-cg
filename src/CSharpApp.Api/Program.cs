@@ -27,11 +27,16 @@ var basePath = "api/v{version:apiVersion}";
 
 var productPath = $"{basePath}/products";
 
+var categoryPath = $"{basePath}/categories";
+
 var basePathGroup = versionedEndpointRouteBuilder
     .MapGroup(basePath);
 
 var productsGroup = versionedEndpointRouteBuilder
     .MapGroup(productPath);
+
+var categoriesGroup = versionedEndpointRouteBuilder
+    .MapGroup(categoryPath);
 
 productsGroup.MapGet("",
     async (IProductsService productsService) =>
@@ -63,6 +68,15 @@ productsGroup.MapPost("",
             createdProduct);
     }
     ).WithName("CreateNewProduct")
+    .HasApiVersion(1.0);
+
+categoriesGroup.MapGet("",
+    async (ICategoriesService categoriesService) =>
+    {
+        var categories = await categoriesService.GetCategories();
+        return Results.Ok(categories);
+    })
+    .WithName("GetCategories")
     .HasApiVersion(1.0);
 
 app.Run();
