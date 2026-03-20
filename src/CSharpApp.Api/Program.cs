@@ -79,4 +79,13 @@ categoriesGroup.MapGet("",
     .WithName("GetCategories")
     .HasApiVersion(1.0);
 
+categoriesGroup.MapGet("{id:int}",
+    async (int id, ICategoriesService categoriesService) =>
+    {
+        var category = await categoriesService.GetCategoryByID(id);
+        return category is null ? Results.NotFound() : Results.Ok(category);
+    })
+    .WithName("GetCategoryByID")
+    .HasApiVersion(1.0);
+
 app.Run();

@@ -1,3 +1,5 @@
+using System.Net.Http.Json;
+
 namespace CSharpApp.Application.Categories
 
 {
@@ -22,6 +24,17 @@ namespace CSharpApp.Application.Categories
             var categories = JsonSerializer.Deserialize<List<Category>>(content) ?? new List<Category>();
 
             return categories.AsReadOnly();
+        }
+
+        public async Task<Category?> GetCategoryByID(int id)
+        {
+            var response = await _httpClient.GetAsync($"{_restApiSettings.Categories}/{id}");
+
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+            return await response.Content.ReadFromJsonAsync<Category>();
         }
     }
 }
